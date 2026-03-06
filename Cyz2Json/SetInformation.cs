@@ -220,7 +220,7 @@ namespace Cyz2Json
         {
             //  update gatebased sets without taking into account exclusive set mode
             foreach(var set in sets) {
-                if (set.type == cytoSetType.gateBased) {
+                if (set.Type == cytoSetType.gateBased) {
                     set.RecalculateParticleIndices();
                 }
             }
@@ -239,7 +239,7 @@ namespace Cyz2Json
 
             // update combined sets, OrSets and unassigned particles set
             foreach(var set in sets) {
-                switch(set.type) {
+                switch(set.Type) {
                     case cytoSetType.combined:
                         set.RecalculateParticleIndices();
                         break;
