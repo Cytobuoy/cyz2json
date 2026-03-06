@@ -444,6 +444,46 @@ namespace Cyz2Json
             return measurementResults;
         }
 
+
+        /// <summary>
+        /// Very simple strtucutre we use to represent a cropping rectangle during the JSON generation.
+        /// The x,y, cordinates are the location of the top left, adn width and height indicate the size.
+        /// </summary>
+        /// <param name="X">X value of TOP left.</param>
+        /// <param name="Y">Y value of TOP left.</param>
+        /// <param name="Width">Width of the cropped image.</param>
+        /// <param name="Height">Height of the cropped image.</param>
+        private record struct CroppingRectangle(int X, int Y, int Width, int Height);
+
+        /// <summary>
+        /// Convert a n open CV rectangle to our own structure, with only the 4 values we want, this makes the JSON that is output a bit
+        /// shorter, nicer, and easier to understand.
+        /// </summary>
+        /// <param name="rect"></param>
+        /// <returns>The CroppingRectangle equivalent of the OpenCV rect.</returns>
+        private static CroppingRectangle ToCroppingRectangle(OpenCvSharp.Rect rect)
+        {
+            return new CroppingRectangle { X = rect.X, Y = rect.Y, Width = rect.Width, Height = rect.Height };
+        }
+
+        /// <summary>
+        /// Get the cropping rectangle for the image.  If the image is not cropped then we will simply return the
+        /// entire size of the image as a rectangle.
+        /// </summary>
+        /// <param name="img"></param>
+        /// <returns></returns>
+        private static CroppingRectangle GetCroppingRectangle( CytoImage img)
+        {
+            if (img.IsCropped) {
+                return ToCroppingRectangle(img.CropRect);
+            } else  {
+                OpenCvSharp.Mat imgMat = img.ImageMat;
+                return new CroppingRectangle { X = 0, Y = 0, Width = imgMat.Width, Height = imgMat.Height };
+            }
+        }
+
+
+
         private static List<Dictionary<string, object>> LoadImages(DataFileWrapper dfw)
         {
             var images = new List<Dictionary<string, object>>();
@@ -463,6 +503,7 @@ namespace Cyz2Json
                         base64String = System.Convert.ToBase64String(memoryStream.ToArray());
                         image["particleId"] = particle.ID;
                         image["base64"] = base64String;
+                        image["cropRectangle"] = GetCroppingRectangle(particle.ImageHandling!);
 
                         images.Add(image);
                     }
