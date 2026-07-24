@@ -77,16 +77,6 @@ jobs:
           -r ${{ steps.set-rid.outputs.rid }} \
           -p:OutputPath=./bin/${{ steps.set-rid.outputs.rid }}/
 
-    - name: Create symlink for OpenCvSharpExtern.dylib
-      if: matrix.os == 'macos-latest'
-      shell: bash
-      run: |
-        publish_dir="Cyz2Json/bin/${{ steps.set-rid.outputs.rid }}/publish"
-        cd $publish_dir/
-        # Create symlink to redirect calls to OpenCvSharpExtern.dylib to libOpenCvSharpExtern.dylib (the file actually created)
-        ln -sf libOpenCvSharpExtern.dylib OpenCvSharpExtern.dylib
-        cd ../../..
-
     - name: Run executable
       shell: bash
       run: |
@@ -94,10 +84,6 @@ jobs:
         file="$exmpl_path/SeineMO_Microphoto_station02_flr26_2ul_8min 2024-05-04 07h54_SubSet.cyz"
         dll_path="Cyz2Json/bin/${{ steps.set-rid.outputs.rid }}/publish/Cyz2Json.dll"
         bn=$(basename "$file")
-        # if macOS, use env var to look for native dependencies inside publish dir (or else it will throw an error)
-        if [ "${{ matrix.os }}" == "macos-latest" ]; then
-          export DYLD_FALLBACK_LIBRARY_PATH=$(dirname $dll_path)
-        fi
         dotnet $dll_path --version
         echo "Conversion ..."
         dotnet $dll_path "$file" --imaging-set-information --image-processing --output $exmpl_path/"$bn".json

@@ -94,15 +94,6 @@ jobs:
         publish_dir="Cyz2Json/bin/${{ steps.set-rid.outputs.rid }}/publish"
         cp LICENSE.txt "$publish_dir/"
 
-    - name: Create symlink for OpenCvSharpExtern.dylib
-      if: matrix.os == 'macos-latest'
-      shell: bash
-      run: |
-        publish_dir="Cyz2Json/bin/${{ steps.set-rid.outputs.rid }}/publish"
-        cd $publish_dir/
-        # Create symlink to redirect calls to OpenCvSharpExtern.dylib to libOpenCvSharpExtern.dylib (the file actually created)
-        ln -sf libOpenCvSharpExtern.dylib OpenCvSharpExtern.dylib
-
     - name: Create Release Archive
       shell: pwsh
       run: |
